@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Neural Networks 5 post read</title>
+<style>
+:root{
+  --bg:#151516; --bg-2:#1c1c1e; --bg-3:#252528; --bg-code:#101011;
+  --line:#34343a; --line-soft:#2a2a2f;
+  --text:#ebe9f1; --muted:#a9a6b5;
+  --v-200:#dcd0ff; --v-300:#c4b0ff; --v-400:#a78bfa; --v-500:#8b5cf6; --v-600:#6f42e6; --v-700:#5a30c2;
+  --v-tint:rgba(139,92,246,.13); --v-tint-2:rgba(139,92,246,.24);
+  --serif:Charter,"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --sans:"Avenir Next","Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--serif);font-size:18px;line-height:1.72;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+:focus-visible{outline:2px solid var(--v-300);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--v-600);color:#fff;padding:8px 14px;border-radius:6px;font-family:var(--sans);z-index:100}
+.skip:focus{left:8px}
+.progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;background:transparent}
+.progress i{display:block;height:100%;width:0;background:var(--v-500)}
+
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:56px;max-width:1160px;margin:0 auto;padding:0 28px}
+.toc{position:sticky;top:0;align-self:start;height:100vh;padding:44px 0 32px;font-family:var(--sans);overflow-y:auto}
+.toc b{display:block;font-size:15px;font-weight:650;margin-bottom:18px;letter-spacing:-.01em}
+.toc ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+.toc a{display:block;padding:6px 0 6px 16px;margin-left:-1px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.35;transition:color .15s,border-color .15s}
+.toc a:hover{color:var(--text)}
+.toc a.on{color:var(--v-300);border-left-color:var(--v-500);font-weight:600}
+main{padding-bottom:40px;min-width:0}
+
+/* hero */
+.hero{padding:88px 0 56px;border-bottom:1px solid var(--line)}
+h1{font-family:var(--sans);font-weight:700;font-size:clamp(2.5rem,6.4vw,4.4rem);line-height:1.02;letter-spacing:-.035em;margin:0 0 22px;max-width:12em}
+.hero .sub{font-size:1.2rem;color:var(--muted);max-width:34em;margin:0 0 44px;line-height:1.55}
+.hero-code{max-width:520px}
+.hero-cap{font-family:var(--sans);font-size:14px;color:var(--muted);margin:14px 0 0;max-width:520px;line-height:1.5}
+
+/* typography */
+section{padding:72px 0 8px;scroll-margin-top:24px}
+h2{font-family:var(--sans);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.3rem);line-height:1.15;letter-spacing:-.025em;margin:0 0 20px}
+h3{font-family:var(--sans);font-weight:650;font-size:1.35rem;line-height:1.25;letter-spacing:-.015em;margin:48px 0 12px}
+h4{font-family:var(--sans);font-weight:650;font-size:1.02rem;margin:0}
+p{margin:0 0 1.15em;max-width:66ch}
+.lede{font-size:1.14rem;color:#d7d4e0}
+a{color:var(--v-300)}
+code{font-family:var(--mono);font-size:.84em;background:var(--bg-3);padding:.12em .4em;border-radius:5px;color:var(--v-200)}
+strong{font-weight:650}
+ul.plain,ol.plain{max-width:66ch;padding-left:1.2em;margin:0 0 1.2em}
+ul.plain li,ol.plain li{margin-bottom:.45em}
+::selection{background:var(--v-600);color:#fff}
+
+/* code */
+pre.code{position:relative;margin:22px 0;padding:18px 20px;background:var(--bg-code);border:1px solid var(--line);border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.65;color:#e2dff0;tab-size:4}
+pre.code code{background:none;padding:0;font-size:inherit;color:inherit}
+pre.code.out{border-style:dashed;color:var(--muted)}
+.k{color:var(--v-400);font-weight:600}.s{color:var(--v-200)}.c{color:#8d8a9b;font-style:italic}.n{color:#fff}
+.cp{position:absolute;top:8px;right:8px;font:600 12px var(--sans);background:var(--bg-3);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:4px 9px;cursor:pointer}
+.cp:hover{color:var(--text);border-color:var(--v-500)}
+
+/* callouts */
+.note,.warn{max-width:66ch;margin:26px 0;padding:16px 20px;border-radius:0 10px 10px 0;font-size:.97rem;line-height:1.62}
+.note{background:var(--v-tint);border-left:3px solid var(--v-500)}
+.warn{background:var(--bg-2);border:1px dashed var(--v-400);border-radius:10px}
+.note p:last-child,.warn p:last-child{margin-bottom:0}
+.note .t,.warn .t{display:block;font-family:var(--sans);font-weight:650;margin-bottom:4px;color:var(--v-200)}
+
+/* table */
+.tablewrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:15px;min-width:420px}
+th,td{text-align:left;padding:10px 16px;border-bottom:1px solid var(--line-soft)}
+th{background:var(--bg-3);font-weight:650;font-size:14px}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.target td{background:var(--v-tint);}
+.tag{display:inline-block;margin-left:8px;padding:1px 9px;border:1px solid var(--v-400);border-radius:99px;font-size:12px;color:var(--v-200)}
+tfoot td{font-weight:650;background:var(--bg-3)}
+
+/* labs */
+.lab{margin:30px 0;background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:22px 24px 24px;max-width:100%}
+.lab-h{margin-bottom:16px}
+.lab-h p{margin:4px 0 0;font-family:var(--sans);font-size:14.5px;color:var(--muted);line-height:1.5}
+.lab-h h4::before{content:"";display:inline-block;width:9px;height:9px;background:var(--v-500);border-radius:2px;margin-right:10px;transform:rotate(45deg)}
+.row{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;font-family:var(--sans);font-size:14.5px}
+.ctl{display:flex;flex-direction:column;gap:4px;min-width:170px;flex:1}
+.ctl label{color:var(--muted);font-size:13.5px}
+.ctl output{color:var(--v-200);font-weight:650;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--v-500);height:28px}
+input[type=number],input[type=text],select{background:var(--bg-code);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:600 15px var(--mono);width:100%;min-width:0}
+input[type=number]:focus,input[type=text]:focus,select:focus{border-color:var(--v-400)}
+.btn{font:600 14px var(--sans);background:var(--v-600);color:#fff;border:1px solid var(--v-500);border-radius:9px;padding:9px 16px;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--v-500)}
+.btn.ghost{background:transparent;color:var(--v-200);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--v-400);background:var(--v-tint)}
+.btn[aria-pressed=true]{background:var(--v-600);border-color:var(--v-300)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;font-family:var(--sans)}
+.stat{background:var(--bg-code);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:120px;flex:1}
+.stat small{display:block;color:var(--muted);font-size:12.5px}
+.stat b{font:650 18px var(--mono);color:var(--v-200);font-variant-numeric:tabular-nums}
+.readout{margin:14px 0 0;font-family:var(--sans);font-size:15px;line-height:1.55;padding:12px 16px;background:var(--bg-code);border-left:3px solid var(--v-500);border-radius:0 8px 8px 0;max-width:none}
+.svgbox{width:100%;margin-top:14px}
+.svgbox svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:var(--sans);fill:var(--muted);font-size:12.5px}
+svg .lbl{fill:var(--text)}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+
+/* tabs */
+.tabs [role=tablist]{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.tabs [role=tab]{font:600 14.5px var(--sans);color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;cursor:pointer;margin-bottom:-1px}
+.tabs [role=tab][aria-selected=true]{color:var(--v-200);border-bottom-color:var(--v-500)}
+.tabs [role=tab]:hover{color:var(--text)}
+.math{font-family:var(--serif);font-size:1.12rem;padding:14px 4px;overflow-x:auto;white-space:nowrap}
+.math i{font-style:italic}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .2em;line-height:1.25;font-size:.95em}
+.frac>span:first-child{border-bottom:1px solid var(--muted);padding:0 .25em}
+.frac>span:last-child{padding:0 .25em}
+
+/* details / reveal */
+details.rev{border:1px solid var(--line);border-radius:12px;background:var(--bg-2);margin:12px 0;max-width:720px}
+details.rev summary{cursor:pointer;padding:16px 20px;font-family:var(--sans);font-weight:600;font-size:16px;line-height:1.45;list-style:none;display:flex;gap:14px;align-items:flex-start}
+details.rev summary::-webkit-details-marker{display:none}
+details.rev summary::before{content:"+";flex:none;width:24px;height:24px;border-radius:6px;background:var(--v-tint-2);color:var(--v-200);display:grid;place-items:center;font-weight:700;line-height:1;margin-top:1px}
+details.rev[open] summary::before{content:"\2212"}
+details.rev .ans{padding:0 20px 18px 58px;font-size:.98rem}
+details.rev .ans p{max-width:60ch}
+details.rev .ans p:last-child{margin-bottom:0}
+.mini{display:inline-grid;grid-template-columns:repeat(5,12px);gap:3px;margin:6px 0 4px}
+.mini i{width:12px;height:12px;background:var(--v-500);border-radius:3px;opacity:.85}
+
+/* flow */
+.flow{list-style:none;margin:28px 0;padding:0;display:flex;flex-wrap:wrap;gap:10px 0;font-family:var(--sans)}
+.flow li{display:flex;align-items:center}
+.flow a{display:block;text-decoration:none;color:var(--text);background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:14.5px;font-weight:600;transition:border-color .15s,background .15s}
+.flow a:hover{border-color:var(--v-400);background:var(--v-tint)}
+.flow li:not(:last-child)::after{content:"";width:22px;height:2px;background:var(--v-400);opacity:.6;margin:0 2px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 4px;font-family:var(--sans)}
+.chip{display:flex;align-items:center;gap:10px;background:var(--bg-code);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font:600 15px var(--mono)}
+.chip em{font-style:normal;color:var(--v-300);min-width:1.6em;text-align:center}
+.chipgroup{margin:6px 0 16px}
+.chipgroup small{display:block;font:14px var(--sans);color:var(--muted);margin-bottom:4px}
+
+/* split bar */
+.splitbar{display:flex;gap:4px;height:64px;font-family:var(--sans)}
+.splitbar button{border:1px solid var(--v-400);color:#fff;cursor:pointer;font:600 14px var(--sans);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;min-width:0;transition:background .15s}
+.splitbar button small{font-weight:500;opacity:.9}
+.splitbar .tr{flex:81;background:var(--v-600)}
+.splitbar .va{flex:9;background:transparent;color:var(--v-200);border-style:dashed}
+.splitbar .te{flex:10;background:transparent;color:var(--v-200);border-style:solid}
+.splitbar button:hover,.splitbar button[aria-pressed=true]{outline:2px solid var(--v-300);outline-offset:2px}
+
+/* nest */
+.nest{font-family:var(--sans);font-size:14.5px;margin:22px 0}
+.nest>div{border:1px solid var(--v-400);border-radius:14px;padding:14px 16px}
+.nest .n2{margin-top:10px;border:1px solid var(--v-500);border-radius:10px;padding:12px 14px;background:var(--v-tint)}
+.nest .n3{margin-top:10px;background:var(--v-600);border:0;border-radius:8px;padding:10px 12px;font:600 13.5px var(--mono);color:#fff;overflow-x:auto;white-space:nowrap}
+.nest .n4{margin-top:10px;border:1px dashed var(--v-400);border-radius:10px;padding:12px 14px}
+.nest b{display:block;margin-bottom:2px}
+.nest span{color:var(--muted)}
+
+/* stepper */
+.stepwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+.stepcode{margin:0}
+.stepcode .ln{display:block;padding:1px 10px;margin:0 -10px;border-left:3px solid transparent;border-radius:0 4px 4px 0;transition:background .15s}
+.stepcode .ln.on{background:var(--v-tint-2);border-left-color:var(--v-400)}
+.stepcode .ln.dim{opacity:.55}
+.pipeline{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0;list-style:none;font-family:var(--sans)}
+.pipeline button{font:600 13px var(--mono);background:var(--bg-code);color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
+.pipeline button[aria-current=step]{background:var(--v-600);color:#fff;border-color:var(--v-300)}
+.stepbox h5{font:650 17px var(--sans);margin:0 0 6px}
+.stepbox p{font-family:var(--sans);font-size:15px;line-height:1.6;margin:0 0 12px}
+.states{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--sans)}
+.states div{flex:1;min-width:130px;background:var(--bg-code);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+.states small{display:block;color:var(--muted);font-size:12.5px}
+.states b{font-size:14.5px;color:var(--v-200)}
+.stepctl{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+/* quiz */
+.quiz{margin:34px 0;border:1px solid var(--line);border-radius:14px;padding:22px 24px;background:var(--bg-2);max-width:760px}
+.quiz .qh{font:650 13.5px var(--sans);color:var(--v-300);margin:0 0 8px;letter-spacing:.01em}
+.quiz .q{font:600 1.05rem/1.55 var(--sans);margin:0 0 16px;max-width:none}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;font:15.5px/1.5 var(--sans);color:var(--text);background:var(--bg-code);border:1px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--v-400);background:var(--v-tint)}
+.opt .l{flex:none;font:700 13px var(--mono);color:var(--v-300);padding-top:2px;width:1.4em}
+.opt .m{margin-left:auto;flex:none;font-weight:700;padding-left:8px}
+.opt.right{border-color:var(--v-300);background:var(--v-tint-2)}
+.opt.wrong{border-style:dashed;border-color:var(--muted);opacity:.85}
+.opt:disabled{cursor:default;color:var(--text)}
+.explain{margin-top:16px;font:15px/1.65 var(--sans);padding:14px 16px;border-left:3px solid var(--v-500);background:var(--v-tint);border-radius:0 8px 8px 0}
+.explain p{margin:0 0 .5em;max-width:none}.explain p:last-child{margin:0}
+.explain .verdict{font-weight:700;color:var(--v-200)}
+.quiz .again{margin-top:12px}
+
+/* recap */
+.recap{list-style:none;margin:20px 0;padding:0;display:grid;gap:12px;max-width:720px}
+.recap li{background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--v-500);border-radius:0 12px 12px 0;padding:14px 18px;font-size:1rem;line-height:1.6}
+footer{border-top:1px solid var(--line);margin-top:56px;padding:34px 28px 56px;text-align:center;font:600 15px var(--sans);color:var(--muted)}
+
+@media (max-width:1000px){
+  .shell{display:block;padding:0 20px}
+  .toc{position:sticky;top:0;z-index:50;height:auto;margin:0 -20px;padding:10px 20px;background:rgba(21,21,22,.96);border-bottom:1px solid var(--line);overflow-x:auto;overflow-y:hidden}
+  .toc b{display:none}
+  .toc ul{display:flex;gap:4px;border:0;white-space:nowrap}
+  .toc a{border:0;border-bottom:2px solid transparent;padding:6px 10px;margin:0}
+  .toc a.on{border-bottom-color:var(--v-500)}
+  .hero{padding-top:56px}
+  .stepwrap{grid-template-columns:1fr}
+  section{scroll-margin-top:60px}
+}
+@media (max-width:560px){
+  body{font-size:17px}
+  .lab,.quiz{padding:18px 16px}
+  details.rev .ans{padding-left:20px}
+  .flow li:not(:last-child)::after{width:10px}
+  .flow a{padding:8px 10px;font-size:13.5px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+<div class="shell">
+<nav class="toc" aria-label="Contents">
+  <b>Neural Networks 5 post read</b>
+  <ul>
+    <li><a href="#foundations">Fundamentals</a></li>
+    <li><a href="#case">The problem</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#prep">Preparation</a></li>
+    <li><a href="#autograd">Tensors &amp; autograd</a></li>
+    <li><a href="#layers">Layers</a></li>
+    <li><a href="#params">Parameters</a></li>
+    <li><a href="#init">Initialization</a></li>
+    <li><a href="#loss">Loss &amp; optimizer</a></li>
+    <li><a href="#loop">Training loop</a></li>
+    <li><a href="#history">Reading curves</a></li>
+    <li><a href="#recap">Recap</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+<header class="hero">
+  <h1>Neural Networks 5 post read</h1>
+  <p class="sub">Building and training models in PyTorch, from the Healthyfi.me workout classifier to a hand-written training loop.</p>
+  <pre class="code hero-code nocopy" data-lang="python"><code>optimizer.zero_grad()
+preds = model(xb)
+loss  = criterion(preds, yb)
+loss.backward()
+optimizer.step()</code></pre>
+  <p class="hero-cap">Everything below builds toward these five lines. Repeated for every batch of every epoch, they are how a neural network trains.</p>
+</header>
+
+<!-- ============ FUNDAMENTALS ============ -->
+<section id="foundations">
+  <h2>Fundamentals worth having in hand</h2>
+  <p class="lede">Four ideas from the mathematics of neural networks keep coming back in PyTorch. Open each one to check your answer.</p>
+
+  <details class="rev"><summary>A layer takes 3 neurons in and feeds 5 neurons in the next layer. What is the shape of its weight matrix?</summary>
+    <div class="ans"><p><strong>3 × 5</strong>: one weight for every input–output pair.</p><div class="mini" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></details>
+
+  <details class="rev"><summary>Two paths in the computation graph both lead back to the same weight. How do you combine their gradients?</summary>
+    <div class="ans"><p><strong>Add them.</strong> The chain rule sums the contribution of every path.</p></div></details>
+
+  <details class="rev"><summary>Sigmoid and tanh are the usual suspects behind vanishing gradients. Why?</summary>
+    <div class="ans"><p>Their derivative is close to 0 across most of the input range, so the gradient shrinks each time it is multiplied backward through a layer.</p></div></details>
+
+  <details class="rev"><summary>Can a neural network do regression?</summary>
+    <div class="ans"><p><strong>Yes.</strong> Keep the output layer's activation linear.</p></div></details>
+</section>
+
+<!-- ============ CASE ============ -->
+<section id="case">
+  <h2>The business case: Healthyfi.me</h2>
+  <p class="lede">You are a data scientist at Healthyfi.me. Every customer is labelled <strong>A, B, C or D</strong> according to the highest workout intensity they can safely handle.</p>
+  <p><strong>The task:</strong> given a new customer's health metrics, predict their class so the app can recommend a customised workout plan.</p>
+  <p>We solve it end to end in PyTorch, from raw data to a trained and evaluated neural network. Each stage below links to its section.</p>
+  <ol class="flow" aria-label="End-to-end workflow">
+    <li><a href="#data">Raw data</a></li>
+    <li><a href="#prep">Encode &amp; explore</a></li>
+    <li><a href="#prep">Scale &amp; split</a></li>
+    <li><a href="#layers">Build the model</a></li>
+    <li><a href="#loss">Loss &amp; optimizer</a></li>
+    <li><a href="#loop">Training loop</a></li>
+    <li><a href="#history">Read the curves</a></li>
+  </ol>
+</section>
+
+<!-- ============ DATA ============ -->
+<section id="data">
+  <h2>Acquiring the data</h2>
+  <p>We start with the usual data-science toolkit, plus scikit-learn helpers for splitting and scaling.</p>
+<pre class="code"><code>import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score</code></pre>
+<pre class="code"><code>!wget "https://drive.google.com/uc?export=download&amp;id=1GVhrh2rH6hUunV4Tf7lQoSFsqov9aPjU" -O healthyfime.csv
+df = pd.read_csv("healthyfime.csv")
+df.head()</code></pre>
+
+  <h3>Data dictionary</h3>
+  <p>Eleven input features describe each customer; the twelfth column is the target.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="num">Id</th><th>Feature</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="num">01</td><td><strong>age</strong></td><td>age of the customer</td></tr>
+      <tr><td class="num">02</td><td><strong>gender</strong></td><td>gender of the customer (M/F)</td></tr>
+      <tr><td class="num">03</td><td><strong>height_cm</strong></td><td>height of the customer in cm</td></tr>
+      <tr><td class="num">04</td><td><strong>weight_kg</strong></td><td>weight of the customer in kg</td></tr>
+      <tr><td class="num">05</td><td><strong>body_fat_%</strong></td><td>% of fat in the customer's body</td></tr>
+      <tr><td class="num">06</td><td><strong>diastolic</strong></td><td>diastolic blood pressure</td></tr>
+      <tr><td class="num">07</td><td><strong>systolic</strong></td><td>systolic blood pressure</td></tr>
+      <tr><td class="num">08</td><td><strong>gripForce</strong></td><td>strength of the customer's grip</td></tr>
+      <tr><td class="num">09</td><td><strong>sit and bend forward_cm</strong></td><td>flexibility measure</td></tr>
+      <tr><td class="num">10</td><td><strong>sit-ups counts</strong></td><td>number of sit-ups the customer can perform</td></tr>
+      <tr><td class="num">11</td><td><strong>broad jump_cm</strong></td><td>maximum jump the customer can perform, in cm</td></tr>
+      <tr class="target"><td class="num">12</td><td><strong>class</strong><span class="tag">target</span></td><td>workout intensity category</td></tr>
+    </tbody></table></div>
+
+  <p><code>df.info()</code> lists every column with its non-null count and its dtype. Reading it carefully tells you what preparation is still needed.</p>
+<pre class="code"><code>df.info()</code></pre>
+
+  <div class="quiz" data-quiz="q1"></div>
+</section>
+
+<!-- ============ PREP ============ -->
+<section id="prep">
+  <h2>Encoding, exploring, and scaling</h2>
+
+  <h3>Encoding categorical columns</h3>
+  <p><code>gender</code> has two levels, so it is binary encoded. <code>class</code> is ordinal, so it is mapped to <strong>0, 1, 2, 3</strong>, which PyTorch can work with directly.</p>
+  <div class="lab" id="lab-enc">
+    <div class="lab-h"><h4>Encoding maps</h4><p>Switch between the raw labels and the values the model will see.</p></div>
+    <div class="seg"><button class="btn" id="encRaw" aria-pressed="true">Raw labels</button><button class="btn ghost" id="encNum" aria-pressed="false">Encoded values</button></div>
+    <div class="chipgroup"><small>gender</small><div class="chips" id="encGender"></div></div>
+    <div class="chipgroup"><small>class</small><div class="chips" id="encClass"></div></div>
+  </div>
+<pre class="code"><code>df.replace({"M": 0, "F": 1}, inplace=True)
+df.head()</code></pre>
+<pre class="code"><code>classes = list(df['class'].unique())
+mapping_dict = {ch: i for i, ch in enumerate(sorted(classes, reverse=True))}
+print(mapping_dict)
+df['class'].replace(mapping_dict, inplace=True)
+df.head()</code></pre>
+<pre class="code out nocopy"><code>{'D': 0, 'C': 1, 'B': 2, 'A': 3}</code></pre>
+  <p>Sorting the labels in reverse order is what produces D → 0 through A → 3. The notebook also prints pandas <code>FutureWarning</code> messages about <code>inplace</code> replacement and downcasting; pandas suggests assigning the result back instead. They do not change the outcome here.</p>
+
+  <h3>Checking linear relationships</h3>
+  <p>Before scaling anything, look at how the features relate to each other and to the target.</p>
+<pre class="code"><code>plt.figure(figsize=(12, 8))
+sns.heatmap(df.corr(), annot=True)
+plt.show()</code></pre>
+  <div class="note"><span class="t">What the heatmap shows</span><p>No feature has a strong linear relationship with <code>class</code>. The boundary between classes is non-linear, which is exactly the kind of problem a neural network suits.</p></div>
+
+  <h3>Checking feature scales</h3>
+<pre class="code"><code>df.boxplot(rot=0, vert=False)
+plt.show()</code></pre>
+  <div class="note"><span class="t">What the boxplot shows</span><p>The features sit on very different scales, so we standardize them. <code>StandardScaler</code> rescales each feature to mean 0 and standard deviation 1.</p></div>
+
+  <h3>Splitting and scaling</h3>
+  <p>Features and target are separated first. The data is then split twice: 10% is held out as the test set, and 10% of what remains becomes the validation set.</p>
+<pre class="code"><code>X, y = df.iloc[:, :-1], df.iloc[:, -1]
+print(X.shape, y.shape)</code></pre>
+<pre class="code"><code>X_dev, X_test, y_dev, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_dev, y_dev, test_size=0.1, random_state=42)
+
+print('Train : ', X_train.shape, y_train.shape)
+print('Valid : ', X_val.shape, y_val.shape)
+print('Test  : ', X_test.shape, y_test.shape)</code></pre>
+
+  <div class="lab" id="lab-split">
+    <div class="lab-h"><h4>Where the rows go</h4><p>Select a segment. Shares are approximate, following from two 10% splits (0.9 × 0.9 ≈ 81%).</p></div>
+    <div class="splitbar" role="group" aria-label="Dataset split proportions">
+      <button class="tr" aria-pressed="true" data-k="tr">Train<small>≈ 81%</small></button>
+      <button class="va" aria-pressed="false" data-k="va">Val<small>≈ 9%</small></button>
+      <button class="te" aria-pressed="false" data-k="te">Test<small>≈ 10%</small></button>
+    </div>
+    <p class="readout" id="splitRead" aria-live="polite"></p>
+  </div>
+
+<pre class="code"><code>scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_val = scaler.transform(X_val)
+X_test = scaler.transform(X_test)</code></pre>
+  <p>The scaler learns its statistics from the training set only. Validation and test features are then transformed using those same statistics.</p>
+  <p>We now have clean, scaled, split data. Time to meet the framework we will build the model in: <strong>PyTorch</strong>. One thing to get used to right away: PyTorch will not create a single weight for a layer until you state how many values come in and how many go out.</p>
+</section>
+
+<!-- ============ AUTOGRAD ============ -->
+<section id="autograd">
+  <h2>Tensors and autograd</h2>
+  <p class="lede">Just enough PyTorch to proceed: two ideas every model rests on.</p>
+  <ul class="plain">
+    <li>A <strong>tensor</strong> is PyTorch's array. It does the same job as a NumPy array, but it can also track <em>how it was computed</em>.</li>
+    <li>Every trainable weight in a PyTorch model is a tensor with <code>requires_grad=True</code>.</li>
+    <li>Because PyTorch records the computation graph, it can work out <code>∂Loss/∂W</code> for <em>every</em> weight automatically. That is <strong>autograd</strong>, the mechanism that did the chain rule for you.</li>
+  </ul>
+<pre class="code"><code>import torch
+print(torch.__version__)
+
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+y = (x ** 2).sum()
+y.backward()
+print(x.grad)   # dy/dx = 2x</code></pre>
+
+  <div class="lab" id="lab-ag">
+    <div class="lab-h"><h4>Autograd explorer</h4><p>Change the values of <code>x</code>, then run <code>y.backward()</code> to see <code>x.grad</code> appear.</p></div>
+    <div class="row" id="agInputs"></div>
+    <div class="svgbox" id="agGraph"></div>
+    <div class="stepctl"><button class="btn" id="agRun">Run y.backward()</button><button class="btn ghost" id="agReset">Reset to [1, 2, 3]</button></div>
+    <p class="readout" id="agRead" aria-live="polite"></p>
+  </div>
+
+  <p>The gradient is <code>2x</code>: PyTorch did the calculus for you. Every <code>.backward()</code> call you write from here on is this same mechanism, just running on a much bigger graph.</p>
+  <div class="warn"><span class="t">Common misconception</span><p>“<code>requires_grad=True</code> means PyTorch trains the tensor.” It does not. It means PyTorch <em>tracks</em> the tensor so a gradient can be computed later, if <code>.backward()</code> is called. Actually updating the values still needs an optimizer.</p></div>
+</section>
+
+<!-- ============ LAYERS ============ -->
+<section id="layers">
+  <h2>Building layers</h2>
+
+  <h3>A single layer with <code>nn.Linear</code></h3>
+  <p>A layer taking our 11 features and producing 64 outputs needs a weight matrix connecting every input to every output. PyTorch needs <strong>both the input size and the output size, stated up front</strong>. Nothing is inferred automatically from the data.</p>
+<pre class="code"><code>import torch.nn as nn
+
+layer = nn.Linear(in_features=11, out_features=64)
+print(layer.weight.shape, layer.bias.shape)</code></pre>
+
+  <div class="lab" id="lab-lin">
+    <div class="lab-h"><h4>nn.Linear shape explorer</h4><p>Change the two sizes and watch the weights and bias that PyTorch creates immediately.</p></div>
+    <div class="row">
+      <div class="ctl"><label for="linIn">in_features: <output id="linInO">11</output></label><input type="range" id="linIn" min="1" max="64" value="11"></div>
+      <div class="ctl"><label for="linOut">out_features: <output id="linOutO">64</output></label><input type="range" id="linOut" min="1" max="128" value="64"></div>
+    </div>
+    <div class="svgbox" id="linNet"></div>
+    <div class="stats" id="linStats"></div>
+    <p class="readout" id="linRead"></p>
+  </div>
+
+  <p><code>nn.Linear(11, 64)</code> creates a fully-connected layer with an 11 × 64 weight matrix and a 64-length bias vector, both created at once because we gave both sizes. Every <code>nn.Linear</code> needs its <code>in_features</code> and <code>out_features</code> stated explicitly; a later layer never infers its input size from the one before it.</p>
+  <div class="note"><span class="t">Reading the printed shape</span><p>Conceptually the matrix connects 11 inputs to 64 outputs. PyTorch prints the weight shape in <code>(out_features, in_features)</code> order, so expect <code>(64, 11)</code>.</p></div>
+
+  <h3>Stacking layers with <code>nn.Sequential</code></h3>
+<pre class="code"><code>model = nn.Sequential(
+    nn.Linear(11, 64),
+    nn.ReLU(),
+    nn.Linear(64, 4)
+)
+print(model)</code></pre>
+  <div class="lab" id="lab-seq">
+    <div class="lab-h"><h4>Chain checker</h4><p>Layer 2 must accept exactly what layer 1 produces. Try breaking the chain.</p></div>
+    <div class="row">
+      <div class="ctl"><label for="seqA">Layer 1: nn.Linear(11, <output id="seqAO">64</output>)</label><input type="range" id="seqA" min="2" max="128" value="64"></div>
+      <div class="ctl"><label for="seqB">Layer 2: nn.Linear(<output id="seqBO">64</output>, 4)</label><input type="range" id="seqB" min="2" max="128" value="64"></div>
+    </div>
+    <div class="svgbox" id="seqNet"></div>
+    <p class="readout" id="seqRead" aria-live="polite"></p>
+  </div>
+  <p>Notice the output layer has <strong>no activation</strong>. As with the regression case in the fundamentals, raw scores (<strong>logits</strong>) come out, and whatever turns them into probabilities is folded into the loss function instead of the model. Keep that in mind; it comes back in Part 2.</p>
+
+  <div class="quiz" data-quiz="q2"></div>
+</section>
+
+<!-- ============ PARAMS ============ -->
+<section id="params">
+  <h2>Counting parameters</h2>
+  <p><code>print(model)</code> shows the structure, but not how many trainable numbers sit inside it. Count them directly:</p>
+<pre class="code"><code>total_params = sum(p.numel() for p in model.parameters())
+print(f"Total trainable parameters: {total_params}")
+
+for name, param in model.named_parameters():
+    print(name, tuple(param.shape))</code></pre>
+  <p><code>named_parameters()</code> yields every weight matrix and bias vector by name, along with its shape.</p>
+  <p>Each layer contributes <strong>(in × out) weights + out biases</strong>. Activation layers like <code>ReLU</code> contribute none.</p>
+
+  <div class="lab" id="lab-par">
+    <div class="lab-h"><h4>Parameter counter</h4><p>Enter layer sizes from input to output, separated by commas, or pick a preset.</p></div>
+    <div class="seg" id="parPresets">
+      <button class="btn ghost" data-v="11, 64, 4">11 → 64 → 4</button>
+      <button class="btn ghost" data-v="11, 16, 4">11 → 16 → 4</button>
+      <button class="btn ghost" data-v="11, 32, 16, 4">11 → 32 → 16 → 4</button>
+    </div>
+    <div class="ctl" style="max-width:360px"><label for="parIn">Layer sizes</label><input type="text" id="parIn" value="11, 64, 4" inputmode="numeric" autocomplete="off"></div>
+    <div class="svgbox" id="parNet"></div>
+    <div class="tablewrap"><table id="parTable"></table></div>
+    <pre class="code out nocopy" id="parNamed" style="margin-bottom:0"><code></code></pre>
+    <p class="readout" id="parMsg" aria-live="polite" hidden></p>
+  </div>
+
+  <div class="note"><span class="t">Optional: a formatted summary</span><p>Install <code>torchinfo</code> to get a clean per-layer table of output shapes and parameter counts. It becomes genuinely useful once models grow beyond a few layers.</p></div>
+<pre class="code"><code>!pip install -q torchinfo
+from torchinfo import summary
+summary(model, input_size=(1, 11))</code></pre>
+
+  <div class="quiz" data-quiz="q3"></div>
+</section>
+
+<!-- ============ INIT ============ -->
+<section id="init">
+  <h2>Weight initialization: where training starts</h2>
+  <p>Every layer needs <em>some</em> starting weights, and that starting point genuinely matters. Too large, and activations and gradients can blow up as they pass through layers. Too small, and they shrink toward zero: the vanishing-gradient pattern again, triggered a different way.</p>
+  <p><code>nn.Linear</code> defaults to <strong>Kaiming (He) uniform</strong> initialization, with biases also drawn from a small uniform range rather than starting at zero.</p>
+
+  <div class="tabs" id="initTabs">
+    <div role="tablist" aria-label="Initialization schemes">
+      <button role="tab" id="tab-k" aria-selected="true" aria-controls="pan-k">Kaiming uniform</button>
+      <button role="tab" id="tab-x" aria-selected="false" aria-controls="pan-x" tabindex="-1">Glorot (Xavier) uniform</button>
+    </div>
+    <div role="tabpanel" id="pan-k" aria-labelledby="tab-k">
+      <p>The default for <code>nn.Linear</code>:</p>
+      <div class="math"><i>w</i> ∼ Uniform[ −<span class="frac"><span>1</span><span>√<i>fan_in</i></span></span> , <span class="frac"><span>1</span><span>√<i>fan_in</i></span></span> ]</div>
+    </div>
+    <div role="tabpanel" id="pan-x" aria-labelledby="tab-x" hidden>
+      <p>A widely used alternative across many libraries and papers:</p>
+      <div class="math"><i>w</i> ∼ Uniform[ −<span class="frac"><span>√6</span><span>√(<i>fan_in</i> + <i>fan_out</i>)</span></span> , <span class="frac"><span>√6</span><span>√(<i>fan_in</i> + <i>fan_out</i>)</span></span> ]</div>
+    </div>
+  </div>
+
+  <h3>What are <code>fan_in</code> and <code>fan_out</code>?</h3>
+  <ul class="plain">
+    <li><strong><code>fan_in</code></strong> is the number of inputs coming <em>into</em> the layer. For <code>nn.Linear(in_features, out_features)</code> it is <code>in_features</code>.</li>
+    <li><strong><code>fan_out</code></strong> is the number of outputs going <em>out of</em> the layer: <code>out_features</code>.</li>
+  </ul>
+<pre class="code out nocopy"><code># nn.Linear(10, 5)
+fan_in  = 10   → 10 input connections per output neuron
+fan_out = 5    → 5 output neurons</code></pre>
+
+  <div class="lab" id="lab-init">
+    <div class="lab-h"><h4>Initialization ranges</h4><p>Each dot is one possible starting weight, drawn uniformly from the scheme's range. Change the layer size to see how the ranges respond.</p></div>
+    <div class="row">
+      <div class="ctl"><label for="fIn">fan_in: <output id="fInO">11</output></label><input type="range" id="fIn" min="1" max="256" value="11"></div>
+      <div class="ctl"><label for="fOut">fan_out: <output id="fOutO">64</output></label><input type="range" id="fOut" min="1" max="256" value="64"></div>
+    </div>
+    <div class="svgbox" id="initSvg"></div>
+    <div class="stats" id="initStats"></div>
+    <div class="stepctl"><button class="btn ghost" id="initRe">Draw new weights</button></div>
+  </div>
+
+  <h3>Default versus Xavier in code</h3>
+<pre class="code"><code>layer = nn.Linear(11, 64)
+print("Default (Kaiming) weight sample:", layer.weight.data.flatten()[:5])
+print("Default bias sample:            ", layer.bias.data.flatten()[:5])</code></pre>
+  <p>To get Glorot/Xavier behaviour instead, override it explicitly:</p>
+<pre class="code"><code>nn.init.xavier_uniform_(layer.weight)
+nn.init.zeros_(layer.bias)
+print("Xavier-overridden weight sample:", layer.weight.data.flatten()[:5])
+print("Zero bias sample:               ", layer.bias.data.flatten()[:5])</code></pre>
+  <p>In PyTorch, initialization is always a separate, explicit step applied to a layer that already exists. That is deliberate: <em>how the layer is shaped</em> and <em>how it is initialized</em> stay two independent decisions.</p>
+
+  <div class="quiz" data-quiz="q4"></div>
+</section>
+
+<!-- ============ LOSS ============ -->
+<section id="loss">
+  <h2>Loss function and optimizer</h2>
+  <p>Two more pieces are needed before anything trains. The <strong>loss function</strong> measures how wrong the predictions are. The <strong>optimizer</strong> uses that measurement to move the weights in a better direction. In PyTorch they are two plain objects, with nothing hidden inside a single combined call.</p>
+<pre class="code"><code>criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)</code></pre>
+  <p><code>nn.CrossEntropyLoss</code> expects two specific things:</p>
+  <ul class="plain">
+    <li><strong>Raw, un-normalized logits</strong> from the model, not softmax probabilities.</li>
+    <li><strong>Integer class labels</strong> (0, 1, 2, 3), not one-hot vectors.</li>
+  </ul>
+  <p>That is why the model deliberately has no <code>Softmax</code> layer. It is a requirement, not an oversight, and Part 2 returns to it.</p>
+
+  <div class="lab" id="lab-ce">
+    <div class="lab-h"><h4>From logits to loss</h4><p>Illustrative numbers. Drag the four logits and pick the true class; the loss function handles the conversion to probabilities internally.</p></div>
+    <div class="row" id="ceSliders"></div>
+    <div class="ctl" style="max-width:240px;margin-top:14px"><label for="ceLabel">True class label (integer)</label>
+      <select id="ceLabel"><option value="0">0</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></div>
+    <div id="ceBars" style="margin-top:18px"></div>
+    <div class="stats" id="ceStats"></div>
+  </div>
+</section>
+
+<!-- ============ LOOP ============ -->
+<section id="loop">
+  <h2>Writing the training loop</h2>
+  <p class="lede">For each batch, the weights update only after a fixed sequence of steps. The order is the whole point.</p>
+
+  <p>The sequence is: reset gradients → forward pass → compute loss → compute gradients (backward) → update weights. A frequent slip is to think of “reset gradients” as the <em>end</em> of a step; in the code it runs at the <em>start</em> of the next one. <code>zero_grad()</code> has to run before <code>backward()</code>, not after <code>step()</code>.</p>
+
+  <div class="lab" id="lab-step">
+    <div class="lab-h"><h4>One batch, step by step</h4><p>Move through the five lines that make up a single weight update.</p></div>
+    <div class="stepwrap">
+      <pre class="code stepcode nocopy" id="stepCode"></pre>
+      <div class="stepbox" id="stepBox" aria-live="polite"></div>
+    </div>
+    <ul class="pipeline" id="stepPipe" aria-label="Steps"></ul>
+    <div class="stepctl"><button class="btn ghost" id="stPrev">Previous</button><button class="btn" id="stNext">Next step</button><button class="btn ghost" id="stPlay">Play</button></div>
+  </div>
+
+  <h3>What <code>zero_grad()</code> actually does</h3>
+  <p>PyTorch <strong>accumulates</strong> gradients by default. Every <code>.backward()</code> call <em>adds</em> the new gradients to whatever is already stored in each parameter's <code>.grad</code>, rather than replacing them. That is useful in some advanced cases, but in a standard training loop it is not what you want: without clearing, each batch's update is contaminated by the gradients of all previous batches. <code>optimizer.zero_grad()</code> resets every <code>.grad</code> to zero, so the next <code>backward()</code> reflects only the current batch.</p>
+
+  <div class="lab" id="lab-acc">
+    <div class="lab-h"><h4>Gradient accumulation</h4><p>Toy gradients for a single weight, one per batch. Compare the stored <code>.grad</code> with and without <code>zero_grad()</code>.</p></div>
+    <div class="row"><div class="ctl" style="max-width:340px"><label for="accN">Batches processed: <output id="accNO">6</output></label><input type="range" id="accN" min="2" max="8" value="6"></div></div>
+    <div class="svgbox" id="accSvg"></div>
+    <p class="readout" id="accRead" aria-live="polite"></p>
+  </div>
+
+  <h3>Batching with <code>DataLoader</code></h3>
+  <p>Training almost never uses the whole dataset at once. The model sees small batches, and in PyTorch you build them yourself with <code>DataLoader</code>.</p>
+<pre class="code"><code>from torch.utils.data import TensorDataset, DataLoader
+
+X_train_t = torch.tensor(X_train, dtype=torch.float32)
+y_train_t = torch.tensor(y_train.values, dtype=torch.long)
+X_val_t = torch.tensor(X_val, dtype=torch.float32)
+y_val_t = torch.tensor(y_val.values, dtype=torch.long)
+
+train_ds = TensorDataset(X_train_t, y_train_t)
+train_loader = DataLoader(train_ds, batch_size=256, shuffle=True)</code></pre>
+
+  <h3>The loop itself</h3>
+  <p>This is the block of code that actually trains the model, epoch by epoch and batch by batch.</p>
+<pre class="code"><code>def seed_everything(seed=42):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+seed_everything()
+
+model = nn.Sequential(
+    nn.Linear(11, 32),
+    nn.ReLU(),
+    nn.Linear(32, 16),
+    nn.ReLU(),
+    nn.Linear(16, 4)
+)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+n_epochs = 500
+history = {"train_loss": [], "val_loss": [], "train_acc": [], "val_acc": []}
+
+for epoch in range(n_epochs):
+    model.train()
+    for xb, yb in train_loader:
+        optimizer.zero_grad()
+        preds = model(xb)
+        loss = criterion(preds, yb)
+        loss.backward()
+        optimizer.step()
+
+    # end-of-epoch bookkeeping — this is where "history" comes from
+    model.eval()
+    with torch.no_grad():
+        train_preds = model(X_train_t)
+        train_loss = criterion(train_preds, y_train_t).item()
+        train_acc = (train_preds.argmax(1) == y_train_t).float().mean().item()
+
+        val_preds = model(X_val_t)
+        val_loss = criterion(val_preds, y_val_t).item()
+        val_acc = (val_preds.argmax(1) == y_val_t).float().mean().item()
+
+    history["train_loss"].append(train_loss)
+    history["val_loss"].append(val_loss)
+    history["train_acc"].append(train_acc)
+    history["val_acc"].append(val_acc)
+
+    if epoch % 50 == 0:
+        print(f"Epoch {epoch:03d} - loss: {train_loss:.4f} - acc: {train_acc:.4f} "
+              f"- val_loss: {val_loss:.4f} - val_acc: {val_acc:.4f}")</code></pre>
+
+  <div class="nest" role="group" aria-label="Structure of the training loop">
+    <div><b>Every epoch <span>(500 of them)</span></b>
+      <div class="n2"><b>Every batch from <code>train_loader</code> <span>(batches of 256, shuffled)</span></b>
+        <div class="n3">zero_grad → forward → loss → backward → step</div></div>
+      <div class="n4"><b>End of the epoch</b><span>Switch to <code>model.eval()</code>, measure loss and accuracy on the training and validation sets without tracking gradients, and append the four numbers to <code>history</code>.</span></div>
+    </div>
+  </div>
+
+  <p>Line by line, the five-line block does this:</p>
+  <ul class="plain">
+    <li><code>optimizer.zero_grad()</code> clears leftover gradients from the previous batch.</li>
+    <li><code>model(xb)</code> is the forward pass, producing predictions.</li>
+    <li><code>criterion(preds, yb)</code> measures how wrong those predictions are.</li>
+    <li><code>loss.backward()</code> has autograd compute every <code>∂Loss/∂W</code>, the same mechanism as the tiny tensor example.</li>
+    <li><code>optimizer.step()</code> performs the weight update. This is the moment the model learns.</li>
+  </ul>
+  <p>That block, repeated per batch and per epoch, <strong>is</strong> how a neural network trains. Nothing else is happening underneath.</p>
+
+  <h3>Spot the bug</h3>
+  <p>The goal here is to internalize <em>why</em> each step exists by seeing what breaks without one. This loop is missing a line. Predict what goes wrong before opening the diagnosis.</p>
+<pre class="code"><code># Broken loop — find the bug before running this
+for epoch in range(n_epochs):
+    for xb, yb in train_loader:
+        preds = model(xb)
+        loss = criterion(preds, yb)
+        loss.backward()
+        optimizer.step()</code></pre>
+  <details class="rev"><summary>What is missing, and what happens to training?</summary>
+    <div class="ans"><p><code>optimizer.zero_grad()</code> is missing. Gradients accumulate across every batch instead of resetting, so parameter updates keep growing rather than reflecting only the current batch. Training tends to destabilize rather than fail with a clean error.</p></div></details>
+
+  <div class="quiz" data-quiz="q5"></div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="history">
+  <h2>Reading history: loss and accuracy curves</h2>
+  <p>The <code>history</code> dictionary, filled by hand epoch by epoch, is the record of how training went. Plotting it takes a few lines.</p>
+<pre class="code"><code>epochs_range = range(n_epochs)
+
+plt.figure()
+plt.plot(epochs_range, history["train_loss"], label="train")
+plt.plot(epochs_range, history["val_loss"], label="val")
+plt.legend()
+plt.title("Loss vs Epochs")
+plt.show()
+
+plt.figure()
+plt.plot(epochs_range, history["train_acc"], label="train")
+plt.plot(epochs_range, history["val_acc"], label="validation")
+plt.legend()
+plt.title("Accuracy vs Epochs")
+plt.show()</code></pre>
+  <p>Training loss keeps dropping, but validation loss bottoms out and starts climbing after roughly 120 epochs. The model is starting to <strong>memorize</strong> the training set instead of generalizing. That is the value of tracking both curves throughout training, not just training loss alone.</p>
+
+  <div class="lab" id="lab-curve">
+    <div class="lab-h"><h4>Anatomy of overfitting</h4><p>A schematic of the loss curves described above. Only the turning point near 120 epochs comes from the lecture; the exact shape and scale are illustrative.</p></div>
+    <div class="row">
+      <div class="ctl"><label for="epSl">Epoch: <output id="epO">60</output></label><input type="range" id="epSl" min="0" max="500" step="5" value="60"></div>
+      <label style="display:flex;gap:8px;align-items:center;color:var(--muted)"><input type="checkbox" id="gapChk" style="accent-color:var(--v-500);width:18px;height:18px"> Highlight the train–val gap</label>
+    </div>
+    <div class="svgbox" id="curveSvg" role="img" aria-label="Schematic loss curves: training loss falls throughout, validation loss falls then rises after about epoch 120"></div>
+    <p class="readout" id="curveRead" aria-live="polite"></p>
+  </div>
+
+  <div class="note"><span class="t">Industry connection</span><p>This is the plot an ML engineer pulls up first when a model's live performance does not match its offline evaluation. Is it genuinely the wrong model, or did it simply overfit past a checkpoint nobody saved?</p></div>
+
+  <div class="quiz" data-quiz="q6"></div>
+</section>
+
+<!-- ============ RECAP ============ -->
+<section id="recap">
+  <h2>Recap</h2>
+  <ul class="recap">
+    <li><code>nn.Linear</code> and <code>nn.Sequential</code> build a model layer by layer, with every shape stated explicitly.</li>
+    <li>Weight initialization sets exactly where training starts. Kaiming is PyTorch's default; Xavier/Glorot is a common alternative.</li>
+    <li>The loss function and optimizer are two separate, explicit objects. Nothing hides behind a single setup call.</li>
+    <li>Training is a loop you write and fully control: <code>zero_grad → forward → loss → backward → step</code>, repeated per batch, per epoch.</li>
+    <li>Tracking history is just choosing what to record each epoch, in a plain dictionary.</li>
+  </ul>
+  <h3>What comes next</h3>
+  <p>Today's model had one input and one output, strictly sequential. Part 2 asks what happens when a model needs to branch, with multiple inputs and multiple outputs, and how to correctly evaluate and monitor a model once it is trained.</p>
+</section>
+</main>
+</div>
+<footer>Neural Networks 5 post read</footer>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const NS='http://www.w3.org/2000/svg';
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmt=n=>Number.isInteger(n)?n+'.':(+n.toFixed(2)).toString();
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- code highlighting + copy ---------- */
+const KW='import|from|as|def|for|in|with|class|return|if|else|True|False|None';
+const RE=new RegExp('(#.*$)|("(?:[^"\\\\]|\\\\.)*"|\'(?:[^\'\\\\]|\\\\.)*\')|\\b('+KW+')\\b|\\b(\\d+\\.?\\d*)\\b','gm');
+function hl(t){return esc(t).replace(RE,(m,c,s,k,n)=>c?'<span class="c">'+c+'</span>':s?'<span class="s">'+s+'</span>':k?'<span class="k">'+k+'</span>':'<span class="n">'+n+'</span>');}
+$$('pre.code').forEach(pre=>{
+  const code=$('code',pre); if(!code||pre.classList.contains('out')||pre.classList.contains('stepcode')) {}
+  if(code&&!pre.classList.contains('out')&&pre.id!=='stepCode'&&pre.id!=='parNamed'){code.innerHTML=hl(code.textContent);}
+  if(!pre.classList.contains('nocopy')&&pre.id!=='stepCode'){
+    const b=document.createElement('button');b.className='cp';b.type='button';b.textContent='Copy';b.setAttribute('aria-label','Copy code');
+    b.onclick=()=>{const t=code.textContent;const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1400)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,done)}else{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove();done()}};
+    pre.appendChild(b);
+  }
+});
+
+/* ---------- progress + toc ---------- */
+const bar=$('#bar');
+function prog(){const h=document.documentElement;const p=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(Math.min(1,Math.max(0,p))*100)+'%'}
+addEventListener('scroll',prog,{passive:true});prog();
+const links=$$('.toc a');
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>{const on=l.getAttribute('href')==='#'+e.target.id;l.classList.toggle('on',on);if(on)l.setAttribute('aria-current','true');else l.removeAttribute('aria-current')});
+  const a=$('.toc a.on');if(a&&innerWidth<=1000)a.scrollIntoView({inline:'center',block:'nearest'})}})},{rootMargin:'-25% 0px -65% 0px'});
+$$('main section').forEach(s=>io.observe(s));
+
+/* ---------- responsive helper ---------- */
+function responsive(el,fn){let w=0,raf=0;const run=()=>{const nw=Math.round(el.clientWidth);if(nw&&nw!==w){w=nw;fn(nw)}};
+  /* defer to the next frame so redrawing the SVG never changes layout inside the observer callback */
+  const later=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(run)};
+  if('ResizeObserver' in window){new ResizeObserver(later).observe(el)}else addEventListener('resize',later);run();return ()=>{w=0;run()}}
+function svg(w,h,label){const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','0 0 '+w+' '+h);s.setAttribute('role','img');if(label)s.setAttribute('aria-label',label);return s}
+function el(n,a,parent,txt){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;if(parent)parent.appendChild(e);return e}
+
+/* ---------- network drawing ---------- */
+function drawNet(box,sizes,opt){
+  opt=opt||{};const W=Math.max(box.clientWidth,260),H=opt.h||230,pad=72,cap=6,sp=Math.min(30,(H-70)/cap);
+  const s=svg(W,H,opt.label||('Network diagram with layer sizes '+sizes.join(', ')));
+  const L=sizes.length,xs=sizes.map((_,i)=>L===1?W/2:pad+i*(W-2*pad)/(L-1)),cy=(H-30)/2;
+  const pts=sizes.map((n,i)=>{const k=Math.min(n,cap);return Array.from({length:k},(_,j)=>cy+(j-(k-1)/2)*sp)});
+  for(let i=0;i<L-1;i++)pts[i].forEach(y1=>pts[i+1].forEach(y2=>el('line',{x1:xs[i],y1,x2:xs[i+1],y2,stroke:'var(--v-400)','stroke-opacity':.22,'stroke-width':1},s)));
+  sizes.forEach((n,i)=>{pts[i].forEach(y=>el('circle',{cx:xs[i],cy:y,r:8,fill:'var(--bg-3)',stroke:i===0||i===L-1?'var(--v-300)':'var(--v-500)','stroke-width':2},s));
+    const lab=(opt.labels&&opt.labels[i])||String(n);el('text',{x:xs[i],y:H-6,'text-anchor':'middle',class:'lbl'},s,lab);
+    if(n>cap)el('text',{x:xs[i],y:cy-(pts[i].length-1)/2*sp-16,'text-anchor':'middle'},s,'⋮ '+cap+' of '+n+' shown')});
+  if(opt.acts)opt.acts.forEach((a,i)=>{if(a)el('text',{x:(xs[i]+xs[i+1])/2,y:14,'text-anchor':'middle',fill:'var(--v-200)',style:'fill:var(--v-200);font-weight:600'},s,a)});
+  box.replaceChildren(s);
+}
+
+/* ---------- QUIZ ---------- */
+const QZ={
+q1:{q:'After loading the dataset, which observation from <code>df.info()</code> is correct?',o:['There are null values in the dataset.','All features are stored as numerical dtypes.','At least one feature (<code>gender</code>) is stored as a non-numerical (object) dtype.','The target variable <code>class</code> is already stored as an integer.'],a:2,
+ e:'<code>gender</code> holds strings (\'M\'/\'F\') and <code>class</code> holds string labels (\'A\'–\'D\') at this point. Both are object dtype, not yet encoded. There are no null values, which rules out (a). That is why an encoding step still lies ahead.'},
+q2:{q:'Which of these correctly builds a 2-layer PyTorch network for our 11-feature input, ending in 4 output classes?',o:['<code>nn.Sequential(nn.Linear(64, 11), nn.ReLU(), nn.Linear(4, 64))</code>','<code>nn.Sequential(nn.Linear(11, 64), nn.ReLU(), nn.Linear(64, 4))</code>','<code>nn.Sequential(nn.Linear(11, 64), nn.Linear(64, 4), nn.ReLU())</code>','<code>nn.Sequential(nn.Linear(64, 4), nn.ReLU(), nn.Linear(11, 64))</code>'],a:1,
+ e:'Each <code>nn.Linear</code>\'s <code>in_features</code> must match the previous layer\'s <code>out_features</code>: the first layer takes 11 (our feature count) and the last produces 4 (our classes). Options (a) and (d) flip the in/out numbers. Option (c) puts <code>ReLU</code> after the output layer, which would squash the logits before the loss function sees them.'},
+q3:{q:'Consider <code>nn.Sequential(nn.Linear(11, 16), nn.ReLU(), nn.Linear(16, 4))</code>. How many trainable parameters (weights + biases) does it have?',o:['192','68','176','260'],a:3,
+ e:'Layer 1: (11 × 16 weights) + 16 biases = 192. Layer 2: (16 × 4 weights) + 4 biases = 68. Total = 192 + 68 = <strong>260</strong>. Option (a) is only layer 1, (b) only layer 2, and (c) forgets layer 1\'s bias (11 × 16 = 176, without the +16).'},
+q4:{q:'Two otherwise-identical networks are initialized with different schemes, Kaiming uniform and Glorot uniform, and each trains for just 5 epochs. What is the most likely outcome?',o:['Early-training loss curves will differ slightly, since the initial weight distributions differ, but both should still learn.','Training will fail completely for one of the two networks, since the initializations are incompatible with the architecture.','There will be no observable difference at all, since both schemes converge to the exact same final weights.','The Kaiming-initialized network will always reach higher accuracy than the Glorot-initialized one.'],a:0,
+ e:'Different schemes produce different starting weights, so the early loss trajectory differs somewhat. Both are valid, variance-aware strategies, so both should learn. Option (b) is wrong because initialization does not break architecture compatibility. (c) overclaims identical final weights, and (d) overclaims guaranteed superiority, which no scheme provides on its own.'},
+q5:{q:'In your manual training loop, you accidentally delete the line <code>optimizer.zero_grad()</code>. What will most likely happen when you train?',o:['PyTorch will throw a runtime error immediately, since gradients must be cleared before every backward pass.','Nothing changes: <code>zero_grad()</code> is optional and only affects logging output, not the parameter updates.','Gradients will accumulate (sum up) across batches instead of being replaced, causing unstable or increasingly large parameter updates.','The model will train identically but simply run slower, due to unnecessary memory usage.'],a:2,
+ e:'PyTorch adds to <code>.grad</code> on every <code>.backward()</code> call and never clears it automatically. Skip <code>zero_grad()</code> and gradients from every earlier batch keep stacking on the current one. That usually destabilizes training rather than raising a clean error (ruling out a), and it is far from a harmless no-op (ruling out b and d).'},
+q6:{q:'Training loss keeps decreasing across all 500 epochs, but validation loss starts rising after epoch ~120. What should you conclude?',o:['The learning rate is too low, and training just needs more epochs to converge properly.','The model is overfitting after epoch ~120: it is starting to memorize training data rather than generalize.','There is a bug in the <code>DataLoader</code> causing validation data to leak into training.','The batch size is too large and should be reduced to fix the divergence.'],a:1,
+ e:'Falling training loss with rising validation loss is the textbook overfitting signature: the model fits noise specific to the training set rather than the underlying pattern. Options (a), (c) and (d) each address a different symptom than the widening train/validation gap actually observed.'}
+};
+$$('.quiz').forEach(box=>{
+  const d=QZ[box.dataset.quiz];if(!d)return;const L='abcd';
+  function render(){
+    box.innerHTML='<p class="qh">Check your understanding</p><p class="q">'+d.q+'</p><div class="opts" role="group" aria-label="Answer choices"></div><div class="explain" aria-live="polite" hidden></div>';
+    const opts=$('.opts',box),ex=$('.explain',box);
+    d.o.forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.className='opt';b.innerHTML='<span class="l">'+L[i]+'.</span><span>'+t+'</span><span class="m" aria-hidden="true"></span>';
+      b.onclick=()=>{const ok=i===d.a;$$('.opt',opts).forEach((o,j)=>{o.disabled=true;if(j===d.a){o.classList.add('right');$('.m',o).textContent='✓';o.setAttribute('aria-label',L[j]+': correct answer')}
+        else if(j===i){o.classList.add('wrong');$('.m',o).textContent='✕'}});
+        ex.hidden=false;ex.innerHTML='<p><span class="verdict">'+(ok?'That’s right. ':'Not quite. ')+'Answer: '+L[d.a]+'.</span></p><p>'+d.e+'</p>';
+        const r=document.createElement('button');r.type='button';r.className='btn ghost again';r.textContent='Try again';r.onclick=render;box.appendChild(r);r.focus({preventScroll:true})};
+      opts.appendChild(b)});
+  }
+  render();
+});
+
+/* ---------- Encoding chips ---------- */
+(function(){
+  const g=[['M',0],['F',1]],c=[['D',0],['C',1],['B',2],['A',3]];let num=false;
+  const bR=$('#encRaw'),bN=$('#encNum');
+  function draw(){
+    const mk=(arr,box)=>{box.innerHTML=arr.map(a=>'<span class="chip">'+(num?'<em>'+a[1]+'</em>':'<em>'+a[0]+'</em>')+'</span>').join('')};
+    // show mapping in both states so the relationship stays visible
+    const mk2=(arr,box)=>{box.innerHTML=arr.map(a=>'<span class="chip">'+(num?'<span style="color:var(--muted)">'+a[0]+' →</span> <em>'+a[1]+'</em>':'<em>'+a[0]+'</em>')+'</span>').join('')};
+    mk2(g,$('#encGender'));mk2(c,$('#encClass'));
+    bR.setAttribute('aria-pressed',!num);bN.setAttribute('aria-pressed',num);bR.className='btn'+(num?' ghost':'');bN.className='btn'+(num?'':' ghost');
+  }
+  bR.onclick=()=>{num=false;draw()};bN.onclick=()=>{num=true;draw()};draw();
+})();
+
+/* ---------- Split bar ---------- */
+(function(){
+  const T={tr:'Training set (X_train, y_train), about 81% of the rows. The scaler is fitted on this set, and the DataLoader batches it for training.',
+           va:'Validation set (X_val, y_val), about 9% of the rows: 10% of the development data left after the test split. It is scored every epoch to watch generalization.',
+           te:'Test set (X_test, y_test), about 10% of the rows, held out in the first split before the validation split is made.'};
+  const btns=$$('#lab-split .splitbar button'),r=$('#splitRead');
+  function sel(k){btns.forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));r.textContent=T[k]}
+  btns.forEach(b=>b.onclick=()=>sel(b.dataset.k));sel('tr');
+})();
+
+/* ---------- Autograd ---------- */
+(function(){
+  const def=[1,2,3];let xs=def.slice(),ran=false;
+  const inp=$('#agInputs'),gr=$('#agGraph'),rd=$('#agRead');
+  inp.innerHTML=xs.map((_,i)=>'<div class="ctl" style="max-width:150px"><label for="ag'+i+'">x['+i+']</label><input type="number" id="ag'+i+'" value="'+xs[i]+'" step="0.5"></div>').join('');
+  const ins=xs.map((_,i)=>$('#ag'+i));
+  ins.forEach((e,i)=>e.addEventListener('input',()=>{const v=parseFloat(e.value);xs[i]=isNaN(v)?0:v;ran=false;draw()}));
+  $('#agRun').onclick=()=>{ran=true;draw()};
+  $('#agReset').onclick=()=>{xs=def.slice();ins.forEach((e,i)=>e.value=xs[i]);ran=false;draw()};
+  function draw(){
+    responsive0();
+  }
+  function responsive0(){
+    const W=Math.max(gr.clientWidth,280),H=210,s=svg(W,H,'Computation graph: each x is squared, the squares are summed into y, and backward gives 2x for each x');
+    const cx=[W*.16,W*.42,W*.68].map((v,i)=>W<420?[W*.12,W*.38,W*.64][i]:v);const yS=[36,102,168];
+    const sum=xs.reduce((a,v)=>a+v*v,0);const yx=W-Math.min(80,W*.14);
+    xs.forEach((v,i)=>{
+      const y=yS[i];
+      el('rect',{x:cx[0]-34,y:y-16,width:68,height:32,rx:8,fill:'var(--bg-code)',stroke:'var(--v-400)'},s);el('text',{x:cx[0],y:y+5,'text-anchor':'middle',class:'lbl'},s,'x'+i+' = '+fmt(v).replace(/\.$/,''));
+      el('line',{x1:cx[0]+34,y1:y,x2:cx[1]-34,y2:y,stroke:'var(--v-400)','stroke-width':1.5},s);
+      el('rect',{x:cx[1]-34,y:y-16,width:68,height:32,rx:8,fill:'var(--bg-code)',stroke:'var(--v-400)'},s);el('text',{x:cx[1],y:y+5,'text-anchor':'middle',class:'lbl'},s,'x² = '+(+(v*v).toFixed(2)));
+      el('line',{x1:cx[1]+34,y1:y,x2:yx-30,y2:102,stroke:'var(--v-400)','stroke-width':1.5,'stroke-opacity':.7},s);
+      if(ran){el('text',{x:cx[0],y:y+32,'text-anchor':'middle',style:'fill:var(--v-200);font-weight:700'},s,'∂y/∂x = 2x = '+(+(2*v).toFixed(2)));}
+    });
+    el('rect',{x:yx-30,y:86,width:60,height:32,rx:8,fill:'var(--v-600)',stroke:'var(--v-300)'},s);el('text',{x:yx,y:107,'text-anchor':'middle',style:'fill:#fff;font-weight:700'},s,'y = '+(+sum.toFixed(2)));
+    el('text',{x:yx,y:76,'text-anchor':'middle'},s,'sum');
+    gr.replaceChildren(s);
+    const arr='tensor(['+xs.map(v=>fmt(2*v)).join(', ')+'])';
+    rd.innerHTML=ran?'<code>x.grad</code> → <code>'+arr+'</code>. Each entry is 2 × the matching <code>x</code>: the derivative of Σx².':'<code>x.grad</code> has not been computed yet. The graph has been recorded, but no gradient exists until <code>.backward()</code> is called.';
+  }
+  responsive(gr,()=>draw());draw();
+})();
+
+/* ---------- nn.Linear explorer ---------- */
+(function(){
+  const a=$('#linIn'),b=$('#linOut'),nb=$('#linNet');
+  function upd(){const i=+a.value,o=+b.value;$('#linInO').textContent=i;$('#linOutO').textContent=o;
+    drawNet(nb,[i,o],{h:200,labels:[i+' in',o+' out'],label:'Linear layer from '+i+' inputs to '+o+' outputs'});
+    $('#linStats').innerHTML='<div class="stat"><small>weight matrix</small><b>'+i+' × '+o+'</b></div><div class="stat"><small>weight values</small><b>'+(i*o).toLocaleString()+'</b></div><div class="stat"><small>bias vector</small><b>'+o+'</b></div><div class="stat"><small>parameters</small><b>'+(i*o+o).toLocaleString()+'</b></div>';
+    $('#linRead').innerHTML='<code>nn.Linear('+i+', '+o+')</code> → <code>layer.weight.shape</code> prints <code>(out, in) = ('+o+', '+i+')</code>; <code>layer.bias.shape</code> prints <code>('+o+',)</code>.';}
+  a.oninput=b.oninput=upd;responsive(nb,upd);upd();
+})();
+
+/* ---------- Sequential chain checker ---------- */
+(function(){
+  const a=$('#seqA'),b=$('#seqB'),nb=$('#seqNet'),rd=$('#seqRead');
+  function upd(){const h=+a.value,i2=+b.value;$('#seqAO').textContent=h;$('#seqBO').textContent=i2;const ok=h===i2;
+    drawNet(nb,[11,h,4],{h:210,labels:['11 features',h+' hidden','4 logits'],acts:[ok?'ReLU':'ReLU (chain broken)',null],label:'Network 11 to '+h+' to 4'});
+    rd.innerHTML=ok?'<strong>Shapes chain correctly.</strong> Layer 1 produces '+h+' values and layer 2 accepts '+i2+'. The output layer carries no activation, so it emits raw logits.'
+      :'<strong>Shape mismatch.</strong> Layer 1 produces '+h+' values but layer 2 expects '+i2+'. PyTorch only reports this the first time you run a forward pass; it does not check when the layers are merely defined.';}
+  a.oninput=b.oninput=upd;responsive(nb,upd);upd();
+})();
+
+/* ---------- Parameter counter ---------- */
+(function(){
+  const inp=$('#parIn'),msg=$('#parMsg'),tbl=$('#parTable'),nb=$('#parNet'),named=$('#parNamed code');let sizes=[11,64,4];
+  function parse(){const p=inp.value.split(/[,\s→>-]+/).filter(Boolean).map(Number);if(p.length<2||p.length>8||p.some(v=>!Number.isInteger(v)||v<1||v>4096))return null;return p}
+  function upd(){const p=parse();if(!p){msg.hidden=false;msg.textContent='Enter 2 to 8 whole numbers between 1 and 4096, for example 11, 64, 4.';return}
+    msg.hidden=true;sizes=p;let tot=0,rows='',nm='';
+    for(let i=0;i<p.length-1;i++){const a=p[i],o=p[i+1],w=a*o,t=w+o;tot+=t;
+      rows+='<tr><td><code>nn.Linear('+a+', '+o+')</code></td><td class="num">'+a+' × '+o+' = '+w.toLocaleString()+'</td><td class="num">'+o+'</td><td class="num">'+t.toLocaleString()+'</td></tr>';
+      nm+=(2*i)+'.weight  ('+o+', '+a+')\n'+(2*i)+'.bias    ('+o+',)\n';}
+    tbl.innerHTML='<thead><tr><th>Layer</th><th class="num">Weights</th><th class="num">Biases</th><th class="num">Parameters</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="3">Total trainable parameters</td><td class="num">'+tot.toLocaleString()+'</td></tr></tfoot>';
+    named.textContent='# names as model.named_parameters() lists them, with ReLU between layers\n'+nm.trimEnd();
+    drawNet(nb,p,{h:220,labels:p.map((n,i)=>i===0?n+' in':i===p.length-1?n+' out':n+''),acts:p.slice(0,-1).map((_,i)=>i<p.length-2?'ReLU':null)});}
+  inp.oninput=upd;$$('#parPresets button').forEach(b=>b.onclick=()=>{inp.value=b.dataset.v;upd()});
+  responsive(nb,()=>{const p=parse();if(p)upd()});upd();
+})();
+
+/* ---------- Tabs ---------- */
+(function(){
+  const tabs=$$('#initTabs [role=tab]');
+  function sel(t){tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;$('#'+x.getAttribute('aria-controls')).hidden=!on})}
+  tabs.forEach((t,i)=>{t.onclick=()=>sel(t);t.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const n=tabs[(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length];sel(n);n.focus()}}});
+})();
+
+/* ---------- Init explorer ---------- */
+(function(){
+  const a=$('#fIn'),b=$('#fOut'),box=$('#initSvg');const N=90;
+  function gen(){const seed=Math.floor(Math.random()*1e9);let s=seed;const r=()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296};
+    return {k:Array.from({length:N},()=>[r()*2-1,r()]),x:Array.from({length:N},()=>[r()*2-1,r()])}}
+  let S=gen();
+  function draw(){
+    const fi=+a.value,fo=+b.value;$('#fInO').textContent=fi;$('#fOutO').textContent=fo;
+    const kb=1/Math.sqrt(fi),xb=Math.sqrt(6/(fi+fo)),m=Math.max(kb,xb)*1.15;
+    const W=Math.max(box.clientWidth,280),H=230,l=16,r=16,x0=l+(W-l-r)/2,sc=(W-l-r)/2/m;
+    const s=svg(W,H,'Initialization ranges: Kaiming uniform is within plus or minus '+kb.toFixed(3)+' and Xavier uniform within plus or minus '+xb.toFixed(3));
+    const rows=[{n:'Kaiming uniform',b:kb,d:S.k,y:20,st:'var(--v-400)',dash:''},{n:'Glorot (Xavier) uniform',b:xb,d:S.x,y:122,st:'var(--v-200)',dash:'6 4'}];
+    rows.forEach(R=>{
+      el('text',{x:l,y:R.y-6,class:'lbl',style:'font-weight:600'},s,R.n+'  ±'+R.b.toFixed(3));
+      el('rect',{x:x0-R.b*sc,y:R.y,width:2*R.b*sc,height:74,rx:8,fill:'var(--v-tint)',stroke:R.st,'stroke-dasharray':R.dash,'stroke-width':1.5},s);
+      R.d.forEach(p=>el('circle',{cx:x0+p[0]*R.b*sc,cy:R.y+8+p[1]*58,r:3.1,fill:R.st,'fill-opacity':.85},s));
+    });
+    el('line',{x1:x0,y1:8,x2:x0,y2:206,stroke:'var(--muted)','stroke-dasharray':'2 4','stroke-opacity':.7},s);
+    [-m,0,m].forEach(v=>el('text',{x:x0+v*sc,y:H-6,'text-anchor':v<0?'start':v>0?'end':'middle'},s,(v===0?'0':(v>0?'+':'−')+Math.abs(v).toFixed(2))));
+    box.replaceChildren(s);
+    $('#initStats').innerHTML='<div class="stat"><small>Kaiming bound: 1 / √fan_in</small><b>±'+kb.toFixed(4)+'</b></div><div class="stat"><small>Xavier bound: √6 / √(fan_in + fan_out)</small><b>±'+xb.toFixed(4)+'</b></div>';
+  }
+  a.oninput=b.oninput=draw;$('#initRe').onclick=()=>{S=gen();draw()};responsive(box,draw);draw();
+})();
+
+/* ---------- Logits -> loss ---------- */
+(function(){
+  const init=[2.0,0.5,-1.0,0.0],v=init.slice(),sl=$('#ceSliders'),lab=$('#ceLabel');
+  sl.innerHTML=init.map((x,i)=>'<div class="ctl"><label for="ce'+i+'">logit for class '+i+': <output id="ceO'+i+'">'+x.toFixed(1)+'</output></label><input type="range" id="ce'+i+'" min="-4" max="4" step="0.1" value="'+x+'"></div>').join('');
+  function upd(){
+    const ex=v.map(Math.exp),Z=ex.reduce((a,b)=>a+b,0),p=ex.map(e=>e/Z),y=+lab.value,loss=-Math.log(p[y]);
+    $('#ceBars').innerHTML=p.map((q,i)=>'<div style="display:flex;align-items:center;gap:12px;margin:7px 0;font:14.5px var(--sans)"><span style="width:118px;color:var(--muted)">class '+i+(i===y?' (true)':'')+'</span><div style="flex:1;background:var(--bg-code);border:1px solid var(--line);border-radius:6px;height:22px;overflow:hidden"><div style="width:'+(q*100).toFixed(1)+'%;height:100%;background:'+(i===y?'var(--v-500)':'var(--v-tint-2)')+'"></div></div><b style="width:56px;text-align:right;font-family:var(--mono);color:var(--v-200)">'+(q*100).toFixed(1)+'%</b></div>').join('');
+    $('#ceStats').innerHTML='<div class="stat"><small>model output (logits)</small><b>['+v.map(x=>x.toFixed(1)).join(', ')+']</b></div><div class="stat"><small>label passed to the loss</small><b>'+y+'</b></div><div class="stat"><small>cross-entropy loss</small><b>'+loss.toFixed(3)+'</b></div>';
+  }
+  init.forEach((_,i)=>{$('#ce'+i).oninput=e=>{v[i]=+e.target.value;$('#ceO'+i).textContent=v[i].toFixed(1);upd()}});lab.onchange=upd;upd();
+})();
+
+/* ---------- Training loop stepper ---------- */
+(function(){
+  const S=[
+   {c:'optimizer.zero_grad()',b:'zero_grad',t:'Clear old gradients',d:'Every parameter\'s <code>.grad</code> is reset to zero, so the next <code>backward()</code> reflects only the current batch.',g:'cleared',w:'unchanged'},
+   {c:'preds = model(xb)',b:'forward',t:'Forward pass',d:'The batch flows through the layers and produces predictions: raw logits, one score per class.',g:'cleared',w:'unchanged'},
+   {c:'loss = criterion(preds, yb)',b:'loss',t:'Measure the error',d:'The loss function compares the predictions with the true integer labels and returns a single number: how wrong the model is.',g:'cleared',w:'unchanged'},
+   {c:'loss.backward()',b:'backward',t:'Backward pass',d:'Autograd computes every <code>∂Loss/∂W</code> through the recorded graph, the same mechanism as the tiny tensor example, and adds the results into <code>.grad</code>.',g:'filled (this batch only)',w:'unchanged'},
+   {c:'optimizer.step()',b:'step',t:'Update the weights',d:'The optimizer uses the gradients to move the weights toward lower loss. This is the moment the model learns.',g:'filled',w:'updated'}];
+  let i=0,timer=null;
+  const code=$('#stepCode'),box=$('#stepBox'),pipe=$('#stepPipe');
+  const lines=[['for epoch in range(n_epochs):',-1],['    for xb, yb in train_loader:',-1]].concat(S.map((s,k)=>['        '+s.c,k]));
+  code.innerHTML=lines.map(l=>'<span class="ln" data-k="'+l[1]+'"><code>'+hl(l[0])+'</code></span>').join('');
+  pipe.innerHTML=S.map((s,k)=>'<li><button type="button" data-k="'+k+'">'+s.b+'</button></li>').join('');
+  function draw(){
+    $$('.ln',code).forEach(n=>{const k=+n.dataset.k;n.classList.toggle('on',k===i);n.classList.toggle('dim',k!==i&&k>=0)});
+    $$('button',pipe).forEach(b=>{if(+b.dataset.k===i)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+    const s=S[i];box.innerHTML='<h5>'+s.t+'</h5><p>'+s.d+'</p><div class="states"><div><small>.grad</small><b>'+s.g+'</b></div><div><small>weights</small><b>'+s.w+'</b></div></div>';
+  }
+  function go(n){i=(n+S.length)%S.length;draw()}
+  $('#stNext').onclick=()=>go(i+1);$('#stPrev').onclick=()=>go(i-1);
+  pipe.onclick=e=>{const b=e.target.closest('button');if(b)go(+b.dataset.k)};
+  const pl=$('#stPlay');pl.onclick=()=>{if(timer){clearInterval(timer);timer=null;pl.textContent='Play'}else{pl.textContent='Pause';timer=setInterval(()=>go(i+1),1800)}};
+  draw();
+})();
+
+/* ---------- Gradient accumulation ---------- */
+(function(){
+  const G=[0.8,0.6,0.7,0.5,0.9,0.6,0.7,0.8],sl=$('#accN'),box=$('#accSvg'),rd=$('#accRead');
+  function draw(){
+    const n=+sl.value;$('#accNO').textContent=n;const g=G.slice(0,n),cum=g.map((_,i)=>g.slice(0,i+1).reduce((a,b)=>a+b,0)),mx=Math.ceil(cum[n-1]+0.5);
+    const W=Math.max(box.clientWidth,280),wide=W>=560,pw=wide?(W-30)/2:W,ph=170,total=wide?ph+34:2*ph+64;
+    const s=svg(W,total,'Bar charts of stored gradient after each batch, with and without zero_grad');
+    function panel(ox,oy,title,vals,fill){
+      el('text',{x:ox+4,y:oy+14,class:'lbl',style:'font-weight:600'},s,title);
+      const bx=ox+30,bw=pw-40,gap=6,w=(bw-gap*(n-1))/n,top=oy+26,bot=oy+ph-6;
+      [0,mx/2,mx].forEach(t=>{const y=bot-(bot-top)*t/mx;el('line',{x1:bx-4,x2:bx+bw,y1:y,y2:y,stroke:'var(--line)','stroke-width':1},s);el('text',{x:bx-8,y:y+4,'text-anchor':'end'},s,+t.toFixed(1))});
+      vals.forEach((v,i)=>{const h=(bot-top)*v/mx;const r=el('rect',{x:bx+i*(w+gap),y:bot-h,width:w,height:h,rx:3,fill:fill,'fill-opacity':fill==='var(--v-500)'?.95:.9},s);
+        const t=document.createElementNS(NS,'title');t.textContent='Batch '+(i+1)+': .grad = '+v.toFixed(1);r.appendChild(t);
+        el('text',{x:bx+i*(w+gap)+w/2,y:bot-h-5,'text-anchor':'middle',style:'fill:var(--text);font-size:11.5px'},s,v.toFixed(1));});
+    }
+    panel(0,0,'With zero_grad(): .grad after each batch',g,'var(--v-500)');
+    panel(wide?pw+30:0,wide?0:ph+30,'Without zero_grad(): .grad after each batch',cum,'var(--v-200)');
+    box.replaceChildren(s);
+    rd.innerHTML='After '+n+' batches the stored gradient is <strong>'+g[n-1].toFixed(1)+'</strong> when it is cleared each time, but <strong>'+cum[n-1].toFixed(1)+'</strong> when it is not. The optimizer would step using a sum of every past batch, not the current one.';
+  }
+  sl.oninput=draw;responsive(box,draw);draw();
+})();
+
+/* ---------- Overfitting curves ---------- */
+(function(){
+  const sl=$('#epSl'),chk=$('#gapChk'),box=$('#curveSvg'),rd=$('#curveRead');
+  const tr=e=>0.10+0.95*Math.exp(-e/70),va=e=>tr(e)+0.04+(1-Math.exp(-Math.pow(e/250,3))),BEST=120,MAXE=500;
+  const YMAX=1.6;
+  function draw(){
+    const e=+sl.value;$('#epO').textContent=e;
+    const W=Math.max(box.clientWidth,300),H=W<520?270:320,m={l:44,r:16,t:16,b:60},pw=W-m.l-m.r,ph=H-m.t-m.b;
+    const X=v=>m.l+v/MAXE*pw,Y=v=>m.t+ph-(v/YMAX)*ph;
+    const s=svg(W,H,'Schematic loss curves: training loss falls throughout; validation loss falls then rises after about epoch 120');
+    [0,.4,.8,1.2,1.6].forEach(t=>el('line',{x1:m.l,x2:m.l+pw,y1:Y(t),y2:Y(t),stroke:'var(--line-soft)'},s));
+    [0,100,200,300,400,500].forEach(t=>el('text',{x:X(t),y:m.t+ph+18,'text-anchor':'middle'},s,t));
+    el('text',{x:m.l+pw/2,y:m.t+ph+38,'text-anchor':'middle'},s,'epochs');
+    el('text',{x:12,y:m.t+ph/2,transform:'rotate(-90 12 '+(m.t+ph/2)+')','text-anchor':'middle'},s,'loss (schematic)');
+    const pts=f=>{let d='';for(let k=0;k<=MAXE;k+=5)d+=(k?'L':'M')+X(k).toFixed(1)+' '+Y(f(k)).toFixed(1);return d};
+    if(chk.checked){let d='M'+X(BEST)+' '+Y(tr(BEST));for(let k=BEST;k<=MAXE;k+=5)d+='L'+X(k).toFixed(1)+' '+Y(va(k)).toFixed(1);for(let k=MAXE;k>=BEST;k-=5)d+='L'+X(k).toFixed(1)+' '+Y(tr(k)).toFixed(1);d+='Z';el('path',{d,fill:'var(--v-500)','fill-opacity':.22},s)}
+    el('line',{x1:X(BEST),x2:X(BEST),y1:m.t,y2:m.t+ph,stroke:'var(--v-300)','stroke-dasharray':'4 4'},s);
+    el('text',{x:X(BEST)+6,y:m.t+14,style:'fill:var(--v-200);font-weight:600'},s,'≈ 120 epochs');
+    el('path',{d:pts(tr),fill:'none',stroke:'var(--v-500)','stroke-width':3},s);
+    el('path',{d:pts(va),fill:'none',stroke:'var(--v-200)','stroke-width':3,'stroke-dasharray':'8 5'},s);
+    el('line',{x1:X(e),x2:X(e),y1:m.t,y2:m.t+ph,stroke:'var(--text)','stroke-opacity':.55},s);
+    el('circle',{cx:X(e),cy:Y(tr(e)),r:6,fill:'var(--v-500)',stroke:'#fff','stroke-width':2},s);
+    const c2=el('rect',{x:X(e)-6,y:Y(va(e))-6,width:12,height:12,fill:'var(--v-200)',stroke:'#fff','stroke-width':2,transform:'rotate(45 '+X(e)+' '+Y(va(e))+')'},s);
+    // legend
+    const ly=H-10,lx=m.l;
+    el('line',{x1:lx,x2:lx+30,y1:ly-4,y2:ly-4,stroke:'var(--v-500)','stroke-width':3},s);el('text',{x:lx+38,y:ly},s,'train');
+    el('line',{x1:lx+100,x2:lx+130,y1:ly-4,y2:ly-4,stroke:'var(--v-200)','stroke-width':3,'stroke-dasharray':'8 5'},s);el('text',{x:lx+138,y:ly},s,'validation');
+    box.replaceChildren(s);
+    let msg;
+    if(e<BEST-20)msg='<strong>Both curves are still falling.</strong> What the model learns from the training set is still carrying over to validation data.';
+    else if(e<=BEST+20)msg='<strong>Validation loss is bottoming out.</strong> Around 120 epochs is the best point to have saved a checkpoint.';
+    else msg='<strong>The gap is widening.</strong> Training loss keeps dropping while validation loss climbs: the model is memorizing the training set rather than generalizing.';
+    rd.innerHTML=msg;
+  }
+  sl.oninput=draw;chk.onchange=draw;responsive(box,draw);draw();
+})();
+})();
+</script>
+</body>
+</html>
